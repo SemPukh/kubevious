@@ -49,8 +49,7 @@ class RuleCache
         return this._context.ruleAccessor.queryAll()
             .then(result => {
                 this._ruleConfigDict = _.makeDict(result, x => x.name);
-            })
-            ;
+            });
     }
 
     _recalculateRuleList()

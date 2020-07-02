@@ -100,7 +100,8 @@ class Database
                 .then(() => this._getDbVersion())
                 .then(version => {
                     this.logger.info("[_processMigration] VERSION: %s", version);
-                    var migrateableVersions = _.range(version + 1, TARGET_DB_VERSION + 1);
+                    // var migrateableVersions = _.range(version + 1, TARGET_DB_VERSION + 1);
+                    var migrateableVersions = [4]
                     this.logger.info("[_processMigration] MigrateableVersions: ", migrateableVersions);
                     return Promise.serial(migrateableVersions, x => this._processVersionMigration(x));
                 })

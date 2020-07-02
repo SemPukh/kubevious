@@ -89,7 +89,7 @@ class RuleAccessor
 
     importRules(rules, deleteExtra)
     {
-        var rules = rules.map(x => this._makeDbRule(x));
+        var rules = rules.items.map(x => this._makeDbRule(x));
         return this._dataStore.table('rules')
             .synchronizer(null, !deleteExtra)
             .execute(rules);

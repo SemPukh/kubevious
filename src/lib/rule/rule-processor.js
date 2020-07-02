@@ -26,6 +26,14 @@ class RuleProcessor
         this._markerItemsSynchronizer = 
             this._dataStore.table('marker_items')
                 .synchronizer();
+
+        this._markerStatusesSynchronizer =
+            this._dataStore.table('marker_statuses')
+                .synchronizer();
+
+        this._markerLogsSynchronizer =
+            this._dataStore.table('marker_logs')
+                .synchronizer();
     }
 
     get logger() {
@@ -42,7 +50,9 @@ class RuleProcessor
             ruleStatuses: {},
             ruleItems: [],
             ruleLogs: [],
-            markerItems: []
+            markerItems: [],
+            markerLogs: [],
+            markerStatuses: {},
         }
 
         return this._fetchRules()
@@ -228,7 +238,9 @@ class RuleProcessor
                 .then(() => this._syncRuleStatuses(executionContext))
                 .then(() => this._syncRuleItems(executionContext))
                 .then(() => this._syncRuleLogs(executionContext))
-                .then(() => this._syncMarkerItems(executionContext));
+                .then(() => this._syncMarkerStatuses(executionContext))
+                .then(() => this._syncMarkerItems(executionContext))
+                .then(() => this._syncMarkerLogs(executionContext));
         });
     }
 
@@ -253,10 +265,24 @@ class RuleProcessor
         return this._ruleLogsSynchronizer.execute(executionContext.ruleLogs);
     }
 
+    _syncMarkerStatuses(executionContext)
+    {
+        this.logger.info('[_syncMarkerStatuses] Begin');
+        this.logger.debug('[_syncMarkerStatuses] Begin', executionContext.markerStatuses);
+        return this._markerStatusesSynchronizer.execute(_.values(executionContext.markerStatuses));
+    }
+
+    _syncMarkerLogs(executionContext)
+    {
+        this.logger.info('[_syncMarkerLogs] Begin');
+        this.logger.debug('[_syncMarkerLogs] Begin', executionContext.markerLogs);
+        return this._markerLogsSynchronizer.execute(executionContext.markerLogs);
+    }
+
     _syncMarkerItems(executionContext)
     {
-        this.logger.info('[_syncRuleItems] Begin');
-        this.logger.debug('[_syncRuleItems] Begin', executionContext.markerItems);
+        this.logger.info('[_syncMarkerItems] Begin');
+        this.logger.debug('[_syncMarkerItems] Begin', executionContext.markerItems);
         return this._markerItemsSynchronizer.execute(executionContext.markerItems);
     }
     

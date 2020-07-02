@@ -1,11 +1,10 @@
 const Promise = require('the-promise');
 const _ = require('the-lodash');
+const HashUtils = require('kubevious-helpers').HashUtils;
 
-class MarkerAccessor
-{
-    constructor(context, dataStore)
-    {
-        this._logger = context.logger.sublogger("MarkerAccessor");
+class MarkerAccessor {
+    constructor(context, dataStore) {
+        this._logger = context.logger.sublogger('MarkerAccessor');
         this._dataStore = dataStore;
     }
 
@@ -13,25 +12,42 @@ class MarkerAccessor
         return this._logger;
     }
 
-    queryAll()
-    {
+    queryAll() {
         return this._dataStore.table('markers')
             .queryMany();
     }
 
-    exportMarkers()
-    {
-        return this.queryAll();
+    queryAllMarkerStatuses() {
+        return this._dataStore.table('marker_statuses')
+            .queryMany();
     }
 
-    getMarker(name)
-    {
+    queryAllMarkerItems() {
+        return this._dataStore.table('marker_items')
+            .queryMany();
+    }
+
+    queryAllMarkerLogs() {
+        return this._dataStore.table('marker_logs')
+            .queryMany();
+    }
+
+    exportMarkers() {
+        return this.queryAll()
+            .then(result => {
+                return {
+                    kind: 'markers',
+                    items: result,
+                };
+            });
+    }
+
+    getMarker(name) {
         return this._dataStore.table('markers')
             .query({ name: name });
     }
 
-    createMarker(config, target)
-    {
+    createMarker(config, target) {
         return Promise.resolve()
             .then((() => {
                 if (target) {
@@ -43,40 +59,41 @@ class MarkerAccessor
             }))
             .then(() => {
                 return this._dataStore.table('markers')
-                    .createOrUpdate({ 
+                    .createOrUpdate({
                         name: config.name,
                         shape: config.shape,
                         color: config.color,
-                        propagate: config.propagate
+                        propagate: config.propagate,
                     })
             });
     }
 
-    deleteMarker(name)
-    {
+    deleteMarker(name) {
         return this._dataStore.table('markers')
-            .delete({ 
-                name: name
+            .delete({
+                name: name,
             });
     }
 
-    importMarkers(markers, deleteExtra)
-    {
+    importMarkers(markers, deleteExtra) {
+        var markers = markers.items.map(x => this._makeDbMarker(x));
         return this._dataStore.table('markers')
             .synchronizer(null, !deleteExtra)
-            .execute(markers)
+            .execute(markers);
     }
 
-    getAllMarkersItems()
-    {
-        return this._dataStore.table('marker_items')
-            .queryMany();
-    }
-
-    getMarkerItems(name)
-    {
-        return this._dataStore.table('marker_items')
-            .queryMany({ marker_name: name });
+    _makeDbMarker(marker) {
+        var markerObj = {
+            name: marker.name,
+            enabled: marker.enabled,
+            color: marker.color,
+            shape: marker.shape,
+            propagate: marker.propagate,
+            date: new Date(),
+        }
+        var hash = HashUtils.calculateObjectHash(markerObj);
+        markerObj.hash = hash;
+        return markerObj;
     }
 
 }

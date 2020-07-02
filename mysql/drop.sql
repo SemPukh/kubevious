@@ -9,4 +9,6 @@ DROP TABLE rule_logs;
 DROP TABLE rule_statuses;
 DROP TABLE rules;
 DROP TABLE marker_items;
+DROP TABLE marker_logs;
+DROP TABLE marker_statuses;
 DROP TABLE markers;
